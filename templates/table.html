@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <table id="data" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Thumbnail</th>
+        <th>Title</th>
+        <th>Score</th>
+        <th>Gostou?</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for video in videos %}
+
+        <tr name={{ video.video_id }}>
+          <td><img alt="Qries" src={{ video.thumbnail }}
+            width="150" height="70"></img></td>
+          <td><a href={{ video.video_id }} target="_blank">{{ video.title }}</a></td>
+          <td>{{ video.score }}</td>
+          <td>
+            <form action="background_process_button" method="post">
+              <a><button name={{ video.video_id }}yes style="background:#3630a3;color:white;font-size: 11px;">Sim</button></a>
+              <a><button name={{ video.video_id }}no style="background:#3630a3;color:white;font-size: 11px;">Nao</button></a>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(function () {
+      $('#data').DataTable({
+        "order": [[ 2, "desc" ]]
+      });
+    });
+  </script>
+  {% for video in videos %}
+  <script type=text/javascript>
+    var id = {{video.video_id }}
+    $(document).ready(function () {
+      $('#' + id + 'yes').on('click', function(e) {
+        e.preventDefault()
+        $.redirect('/background_process_button')
+        // $.getJSON('/background_process_button',
+        //     function(data) {
+        //   //do nothing
+        // });
+    });
+    });
+  </script>
+  {% endfor %}
+{% endblock %}
