@@ -1,6 +1,7 @@
 import run_backend
 import sqlite3 as sql
 from dotenv import dotenv_values
+import os
 
 config = dotenv_values(".env")
 
@@ -15,3 +16,6 @@ if __name__ == '__main__':
         conn.commit()
 
     run_backend.update_db()
+
+    if "users" not in os.listdir():
+        os.mkdir("users")

@@ -5,6 +5,7 @@ import os
 import run_backend
 import time
 import sqlite3 as sql
+import json
 from dotenv import dotenv_values
 
 
@@ -12,12 +13,14 @@ config = dotenv_values(".env")
 
 app = Flask(__name__)
 
-user_name = "jonysalgado"
+username = "jonysalgado"
 
-db_name = user_name + ".db"
+db_name = username + ".db"
+with open("users\\{}\\user.json".format(username), "r") as data_file:
+    user_info = json.load(data_file)
 
-if config["ENV"] == 'dev' and db_name not in os.listdir("users\\" + user_name):
-    with sql.connect("users\\{}\\{}".format(user_name, db_name)) as conn:
+if config["ENV"] == 'dev' and db_name not in os.listdir("users\\" + username):
+    with sql.connect("users\\{}\\{}".format(username, db_name)) as conn:
         c = conn.cursor()
         c.execute('''CREATE TABLE videos
                      (title text, thumbnail text, score real, video_id text, upload_date real)''')
@@ -26,12 +29,28 @@ if config["ENV"] == 'dev' and db_name not in os.listdir("users\\" + user_name):
                      (video_id text, label integer)''')
         conn.commit()
 
+    if "users" not in os.listdir():
+        os.mkdir("users")
+
 class Video:
     def __init__(self, video_id, title, thumbnail,score):
         self.video_id = video_id
         self.title = title
         self.thumbnail = thumbnail
         self.score = score
+
+def login_data(username, user_info=None):
+    if username in os.listdir("users"):
+        with open("users\\{}\\user.json".format(username), "r") as data_file:
+            user_info = json.load(data_file)
+    
+    else:
+        os.mkdir("users\\" + username)
+        os.mkdir("users\\" + username + "\\models")
+        with open("users\\{}\\user.json".format(username), "w") as input:
+            json.dump(user_info, input)
+    return user_info
+
 
 def get_data_from_db(c):
     videos = []
@@ -49,25 +68,21 @@ def get_data_from_db(c):
 
 def get_predictions():
     
-    with sql.connect("users\\{}\\{}".format(user_name, db_name)) as conn:
+    with sql.connect("users\\{}\\{}".format(username, db_name)) as conn:
         c = conn.cursor()
         lines = []
         for line in c.execute("SELECT * FROM videos"):
             lines.append(line)
         if len(lines) == 0:
-            run_backend.update_db(user_name)
+            run_backend.update_db(username)
         
         videos = get_data_from_db(c)          
 
         last_update = videos[-1]['upload_date']
         if time.time() - last_update > (24*3600): # approximately 1 day
-            run_backend.update_db(user_name)
+            run_backend.update_db(username)
             videos = get_data_from_db(c) 
         
-    # with open("new_videos.json", "r") as data_file:
-    #     for line in data_file:
-    #         line_json = json.loads(line)
-    #         videos.append(line_json)
     predictions = []
     for video in videos:
         predictions.append(Video(video["video_id"], 
@@ -84,7 +99,33 @@ preds, last_update = get_predictions()
 
 @app.route('/')
 def main_page():
-    return render_template("table.html", title="Video Recommender", videos=preds, last_update=last_update)
+    username = request.args.get('username')
+    if username == None:
+        return redirect('/login')
+
+    if username not in os.listdir("users\\"):
+        name = request.args.get('name')
+        profile_url = request.args.get('profile_url')
+        subject1 = request.args.get('subject1')
+        subject2 = request.args.get('subject2')
+        subject3 = request.args.get('subject3')
+        subject4 = request.args.get('subject4')
+        info = {
+            "name": name,
+            "url_photo_profile": profile_url,
+            "queries": [subject1, subject2, subject3, subject4]
+        }
+        user_info = login_data(username, info)
+    
+    else:
+        user_info = login_data(username )
+        
+
+
+    return render_template("table.html", title="Video Recommender", 
+                                         videos=preds, 
+                                         last_update =last_update,
+                                         user_name=user_info["name"])
 
 @app.route('/background_process_button', methods=['POST'])
 def background_process_botton():
@@ -100,7 +141,7 @@ def background_process_botton():
             feedback['label'] = 0
             print(pred.video_id, 0)
 
-    with sql.connect("users\\{}\\{}".format(user_name, db_name)) as conn:
+    with sql.connect("users\\{}\\{}".format(username, db_name)) as conn:
         c = conn.cursor()
         c.execute("DELETE FROM feedback WHERE video_id='{}'".format(feedback['video_id']))
         conn.commit()
@@ -112,13 +153,24 @@ def background_process_botton():
 @app.route('/get_feedbacks')
 def get_feedbacks():
     feedbacks = {}
-    with sql.connect("users\\{}\\{}".format(user_name, db_name)) as conn:
+    with sql.connect("users\\{}\\{}".format(username, db_name)) as conn:
         c = conn.cursor()
         for line in c.execute("SELECT * FROM feedback"):
             feedbacks[line[0]] = line[1]
     
     return feedbacks
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/subscription')
+def subscription():
+    username = request.args.get('username')
+    if username not in os.listdir("users"):
+        return render_template('subscription.html')
+    
+    return redirect('/')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

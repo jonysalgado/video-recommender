@@ -7,18 +7,39 @@
         <link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ1i-il-8tIfn_xQlHLP8RfGhes7fmGHsyCw&usqp=CAU">
     </head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <body>
     {% block scripts %}{% endblock %}
     <div class="container">
       <h1>{{ title }}</h1>
       <h5>Horas do último update: {{ last_update }}h</h5>
+      <div class="pull-right">
+        <div class="btn-group">
+            <button class="btn btn-success" style="background:#3630a3;color:white;font-size: 11px;">{{user_name }}</button>
+            <button class="btn btn-success" 
+                    data-toggle="dropdown" style="background:#3630a3;color:white;font-size: 11px;">
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu pull-right">
+                <li>
+                    <a href="#logout">Logout</a>
+                </li>
+                <li>
+                  <a href="#delete">Delete account</a>
+              </li>
+            </ul>
+        </div>
+    </div>
+    <div class="clearfix"></div>
       <hr>
       {% block content %}{% endblock %}
     </div>
     <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
-    <h5 style="text-align: center">Version: v1</h5>
+    <h5 style="text-align: center">Version: v1.1.2</h5>
     <h5 style="text-align: center">Contato: jonysalgadofilho@gmail.com</h5>
   </body>
 </html>
