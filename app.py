@@ -110,15 +110,16 @@ def main_page():
         subject2 = request.args.get('subject2')
         subject3 = request.args.get('subject3')
         subject4 = request.args.get('subject4')
+        subject5 = request.args.get('subject5')
         info = {
             "name": name,
             "url_photo_profile": profile_url,
-            "queries": [subject1, subject2, subject3, subject4]
+            "queries": [subject1, subject2, subject3, subject4, subject5]
         }
         user_info = login_data(username, info)
     
     else:
-        user_info = login_data(username )
+        user_info = login_data(username)
         
 
 
@@ -147,7 +148,6 @@ def background_process_botton():
         conn.commit()
         c.execute("INSERT INTO feedback VALUES ('{video_id}', '{label}')".format(**feedback))
         conn.commit()
-    print("ok")
     return redirect('/')
 
 @app.route('/get_feedbacks')
@@ -167,10 +167,11 @@ def login():
 @app.route('/subscription')
 def subscription():
     username = request.args.get('username')
+    print("login:", username)
     if username not in os.listdir("users"):
         return render_template('subscription.html')
     
-    return redirect('/')
+    return redirect('/?username=' + username)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
