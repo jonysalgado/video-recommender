@@ -6,18 +6,18 @@
       <tr>
         <th>Thumbnail</th>
         <th>Title</th>
-        <th>Score</th>
         <th>Do you like?</th>
       </tr>
     </thead>
     <tbody>
+        <h3>Please, tell us what kind of video you like. Click on the button beside each video to tell us if you like or not.</h3>
+        
+        <button type="submit" class="done" href={{url_for('active_learning')}} style="background:#3630a3;color:white;font-size: 11px;">Done</button>
       {% for video in videos %}
-
         <tr name={{ video.video_id }}>
           <td><img alt="Qries" src={{ video.thumbnail }}
             width="150" height="70"></img></td>
           <td><a href={{ video.video_id }} target="_blank">{{ video.title }}</a></td>
-          <td>{{ video.score }}</td>
           <td>
             <form action="background_process_button" method="post">
               <a><button name={{ video.video_id }}yes style="background:#3630a3;color:white;font-size: 11px;">Yes</button></a>
