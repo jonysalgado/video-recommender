@@ -12,14 +12,17 @@
     <tbody>
         <h3>Please, tell us what kind of video you like. Click on the button beside each video to tell us if you like or not.</h3>
         
-        <button type="submit" class="done" href={{url_for('active_learning')}} style="background:#3630a3;color:white;font-size: 11px;">Done</button>
+        <!-- <button type="submit" class="done" href={{url_for('active_learning')}} style="background:#3630a3;color:white;font-size: 11px;">Done</button> -->
+        <form action="active_learning" method="post">
+          <a><button name="done" style="background:#3630a3;color:white;font-size: 11px;">Done</button></a>
+        </form>
       {% for video in videos %}
         <tr name={{ video.video_id }}>
           <td><img alt="Qries" src={{ video.thumbnail }}
             width="150" height="70"></img></td>
           <td><a href={{ video.video_id }} target="_blank">{{ video.title }}</a></td>
           <td>
-            <form action="background_process_button" method="post">
+            <form action="background_process_button_vote" method="post">
               <a><button name={{ video.video_id }}yes style="background:#3630a3;color:white;font-size: 11px;">Yes</button></a>
               <a><button name={{ video.video_id }}no style="background:#3630a3;color:white;font-size: 11px;">No</button></a>
             </form>

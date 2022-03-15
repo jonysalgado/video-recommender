@@ -220,7 +220,40 @@ def delete():
     else:
         return redirect('/')
 
-@app.route('/active_learning')
+@app.route('/background_process_button_vote', methods=['POST'])
+def background_process_botton_vote():
+    preds, _ = get_predictions()
+    feedback = {}
+    for pred in preds:
+
+        if type(request.form.get(pred.video_id + "yes")) == str:
+            feedback['video_id'] = pred.video_id
+            feedback['label'] = 1
+            print(pred.video_id, 1)
+        elif type(request.form.get(pred.video_id + "no")) == str:
+            feedback['video_id'] = pred.video_id
+            feedback['label'] = 0
+            print(pred.video_id, 0)
+
+    with sql.connect("users\\{}\\{}".format(user.username, user.db_name)) as conn:
+        c = conn.cursor()
+        c.execute("DELETE FROM feedback WHERE video_id='{}'".format(feedback['video_id']))
+        conn.commit()
+        c.execute("INSERT INTO feedback VALUES ('{video_id}', '{label}')".format(**feedback))
+        conn.commit()
+        with sql.connect("users\\{}\\{}".format(user.username, user.db_name)) as conn:
+            c = conn.cursor()
+            
+        videos = get_data_from_db(c)
+    
+        user_info = login_data(user.username)
+    return render_template("vote.html", title="Video Recommender", 
+                                         videos=videos, 
+                                         last_update =0,
+                                         user_name=user_info["name"],
+                                         user_id=user.username)
+
+@app.route('/active_learning', methods=['POST'])
 def active_learning():
     return redirect('/')
 
