@@ -157,11 +157,13 @@ def new_user():
         videos = get_data_from_db(c)
     
     user_info = login_data(user.username)
+    sentence = "Please, tell us what kind of video you like. Click on the button beside each video to tell us if you like or not."
     return render_template("vote.html", title="Video Recommender", 
-                                         videos=videos, 
-                                         last_update =0,
-                                         user_name=user_info["name"],
-                                         user_id=user.username)
+                                        sentence=sentence,
+                                        videos=videos, 
+                                        last_update =0,
+                                        user_name=user_info["name"],
+                                        user_id=user.username)
 
 
 @app.route('/background_process_button', methods=['POST'])
@@ -247,11 +249,13 @@ def background_process_botton_vote():
         videos = get_data_from_db(c)
     
         user_info = login_data(user.username)
-    return render_template("vote.html", title="Video Recommender", 
-                                         videos=videos, 
-                                         last_update =0,
-                                         user_name=user_info["name"],
-                                         user_id=user.username)
+        sentence = "Please, tell us what kind of video you like. Click on the button beside each video to tell us if you like or not."
+        return render_template("vote.html", title="Video Recommender", 
+                                            sentence=sentence,
+                                            videos=videos, 
+                                            last_update =0,
+                                            user_name=user_info["name"],
+                                            user_id=user.username)
 
 @app.route('/active_learning', methods=['POST'])
 def active_learning():
